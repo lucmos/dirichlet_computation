@@ -1,5 +1,6 @@
 close all 
 clear all
+clc 
 
 % num evals
 k = 10
@@ -18,6 +19,7 @@ M_dirichlet = M;
 M_hamiltonian = M;
 M_hamiltonian2 = M;
 
+
 % Use inside approach to compute dirichlet evals (extraxt a submatrix with)
 M_dirichlet_inside = mesh.proc.cut_mesh(M_dirichlet_inside, M_dirichlet_inside.ind);
 boundary = calc_boundary_edges(M_dirichlet_inside.TRIV);
@@ -26,6 +28,7 @@ inside = setdiff(1:M_dirichlet_inside.n, unique(boundary(:)));
 [evecsR, evals] = eigs(M_dirichlet_inside.S(inside, inside), M_dirichlet_inside.A(inside, inside), k, 1e-10);
 'dirichlet "inside"'
 diag(evals)
+
 
 
 % Explicit modify matrices with boundary dirichlet conditions
@@ -38,7 +41,7 @@ M_dirichlet.evals
 
 % Use hamiltonian (from luca c. code)
 [M_hamiltonian.S, M_hamiltonian.A, M_hamiltonian.Al] = mesh.proc.FEM_higher(M_hamiltonian, 1, 'neumann');
-adj = M_hamiltonian.S > 0;
+adj = M_hamiltonian.S ~= 0;
 f = not(adj * not(M.ind));
 w_gt = 2e5;
 v_gt = 1 - f;
@@ -48,11 +51,12 @@ v_gt = 1 - f;
 diag(evals_H)
 
 
+
 % Use hamiltonian exactly as in pytorch (from luca c. code)
 M_hamiltonian2 = M;
 
 [M_hamiltonian2.S, M_hamiltonian2.A, M_hamiltonian2.Al] = mesh.proc.FEM_higher(M_hamiltonian2, 1, 'neumann');
-adj = M_hamiltonian2.S > 0;
+adj = M_hamiltonian2.S ~= 0;
 f = not(adj * not(M.ind));
 
 w_gt = 1e6;
@@ -74,7 +78,7 @@ diag(evals_H)
 M_hamiltonian2 = M;
 
 [M_hamiltonian2.S, M_hamiltonian2.A, M_hamiltonian2.Al] = mesh.proc.FEM_higher(M_hamiltonian2, 1, 'neumann');
-adj = M_hamiltonian2.S > 0;
+adj = M_hamiltonian2.S ~= 0;
 f = not(adj * not(M.ind));
 
 w_gt = 1e6;
@@ -87,6 +91,7 @@ a_inv = sqrt(1./diag(M_hamiltonian2.Al));
                           1e-5);
 'pytorch without point wise'
 diag(evals_H)
+
 
 
 % Imported hamiltonian from pytorch 
